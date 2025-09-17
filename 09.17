@@ -1,0 +1,27 @@
+x1 = c(0.0, 0.3, 0.7, 1.0, 1.4, 1.7, 2.1, 2.4, 2.8, 3.1, 3.4, 3.8, 4.1)
+y1 = c(2.9, 3.5, 2.3, 2.8, 3.2, 4.6, 4.3, 3.4, 4.0, 3.7, 3.1, 3.3, 3.2)
+mean(x1)
+mean(y1)
+
+x2 = c(0.0, 0.3, 0.7, 1.0, 1.4, 1.7, 2.1, 2.4, 2.8, 3.1, 3.4, 3.8, 4.1)
+y2 = c(2.9, 4.0, 3.2, 4.2, 5.0, 6.9, 6.9, 6.5, 7.6, 7.8, 7.5, 8.2, 8.6)
+mean(x2)
+mean(y2)
+
+
+
+library(ggplot2)
+
+train_data <- read.csv("C:/Users/PC502/Desktop/simple_train_2.csv")
+
+ggplot(train_data, aes(x = thigh, y = upper_arm)) + 
+  geom_point(alpha = 0.7) + 
+  labs(title = "대퇴부 vs 상박부 산점도", 
+       x = "대퇴부 둘레 (thigh, cm)", 
+       y = "상박부 둘레 (upper_arm, cm)") + 
+  theme_minimal()
+
+model <- lm(upper_arm ~ thigh, data = train_data)
+summary(model)
+
+residuals(model)
