@@ -82,4 +82,6 @@ write.csv(results, "C:/Users/PC502/Desktop/predicted_values.csv", row.names = FA
 
 
 
-rmse <- sqrt
+rmse <- sqrt(mean((results$Diabetes - results$Predicted)^2))
+
+print(paste("RMSE:", round(rmse, 3)))
