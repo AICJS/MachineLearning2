@@ -12,6 +12,21 @@ library(car)
 
 
 
+df <- read.csv("C:/Users/PC502/Desktop/diabetes.csv", header = TRUE, na = ".", stringsAsFactors = TRUE)
+skim(df)
+
+df <- select(df, -c(SkinThickness, Insulin, Outcome))
+skim(df)
+
+
+
+result <- lm(df$Diabetes ~ ., data = df)
+result1 <- lm(df$Diabetes ~ 1, data = df)
+
+anova_result <- anova(result, result1)
+print(anova_result)
+
+summary(result)
 # 선 형 성 ############################################################
 df$Fitted <- fitted(result)
 df$Residuals <- resid(result)
