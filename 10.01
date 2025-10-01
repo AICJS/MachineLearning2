@@ -1,3 +1,17 @@
+install.packages("ggplot2")
+install.packages("rstatix")
+install.packages("skimr")
+install.packages("lmtest")
+
+library(ggplot2)
+library(rstatix)
+library(skimr)
+library(lmtest)
+
+library(car)
+
+
+
 # 선 형 성 ############################################################
 df$Fitted <- fitted(result)
 df$Residuals <- resid(result)
