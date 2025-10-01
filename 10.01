@@ -53,5 +53,7 @@ ggplot(df, aes(x = Fitted, y = StdResid)) +
   theme_minimal()
 
 bptest(result)
+#############################################################
+
 # 독 립 성 ############################################################
 durbinWatsonTest(result)
