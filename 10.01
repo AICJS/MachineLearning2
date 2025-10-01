@@ -1,0 +1,28 @@
+# 선 형 성 ############################################################
+df$Fitted <- fitted(result)
+df$Residuals <- resid(result)
+
+ggplot(df, aes(x = Fitted, y = Residuals)) + 
+  geom_point(alpha = 0.6) + 
+  geom_smooth(method = "loess", se = FALSE, color = "blue") + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  labs(title = "Residuals vs Fitted (선형성 확인)", 
+       x = "적합값 (Fitted Values)", 
+       y = "잔차 (Residuals)") + 
+  theme_minimal()
+#############################################################
+
+# 등 분 산 성 ############################################################
+df$StdResid <- sqrt(abs(df$Residuals))
+
+ggplot(df, aes(x = Fitted, y = StdResid)) + 
+  geom_point(alpha = 0.6) + 
+  geom_smooth(method = "loess", se = FALSE, color = "blue") + 
+  labs(title = "Scale-Location Plot (등분산성 확인)", 
+       x = "적합값 (Fitted Values)", 
+       y = "Standardized Residuals") + 
+  theme_minimal()
+
+bptest(result)
+# 독 립 성 ############################################################
+durbinWatsonTest(result)
