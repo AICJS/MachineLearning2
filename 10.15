@@ -1,0 +1,110 @@
+install.packages("MASS")
+install.packages("car")
+install.packages("skimr")
+install.packages("rstatix")
+install.packages("caret")
+install.packages("BB")
+
+library(MASS)
+library(car)
+library(skimr)
+library(rstatix)
+library(caret)
+library(BB)
+
+
+
+set.seed(123)
+
+data("Boston")
+df <- Boston
+skim(df)
+
+initial_predictors <- c("lstat", "rm", "age", "dis", "rad", "tax", "ptratio", "indus", "nox", "crim")
+
+train_indices <- createDataPartition(df$medv, p = 0.8, list = FALSE)
+
+train_df <- df[train_indices, ]
+test_df <- df[-train_indices, ]
+
+result <- lm(train_df$medv ~ ., data = train_df[,initial_predictors])
+summary(result)
+
+
+
+source("C:/Users/PC502/Desktop/Gradient Descent.R")
+
+train_indices <- createDataPartition(df$medv, p = 0.8, list = FALSE)
+
+df_train <- df[train_indices, ]
+df_test <- df[-train_indices, ]
+
+# 학습
+gd_model <- train_bb_lm(df_train, target = "medv", predictors = initial_predictors, 12.1e-4)
+
+# 결과요약
+train_metrics.bb_lm(gd_model, df_train)
+
+# 저장
+saveRDS(gd_model, file = "bb_lm_boston.rds")
+
+# 불러오기
+loaded <- readRDS("bb_lm_boston.rds")
+
+
+
+# 예측 & 평가
+pred <- predict(loaded, newdata = df_test)
+rmse <- sqrt(mean((df_test$medv - pred)^2))
+r2 <- 1 - sum((df_test$medv - pred)^2) / sum((df_test$medv - mean(df_test$medv))^2)
+
+print(round(pred, 3))
+print(paste("RMSE:", round(rmse, 3)))
+print(paste("R-Squared:", round(r2, 3)))
+
+# 원본 스케일의 최종 계수 확인
+coef(loaded)
+
+
+
+# 잔차
+opar <- par(no.readonly = TRUE)
+par(mfrow = c(2, 2))
+plot(result)
+par(opar)
+
+# 정규성
+shapiro_test(result$residuals)
+
+
+
+# 다중공선성
+vif_values <- vif(result)
+
+print(vif_values)
+
+selected_predictors <- names(vif_values[vif_values < 7])
+print(selected_predictors)
+
+# 이상치검정
+influencePlot(result, id.method = "identify")
+
+# 이상치 제거
+df = df[-c(121),]
+df = df[-c(366, 369, 373, 381, 419),]
+
+
+
+df <- read.csv("C:/Users/PC502/Desktop/diabetes.csv", header = TRUE, na = ".")
+result <- lm(df$Diabetes ~ ., data = df)
+
+# 후진소거법
+result_bk = lm(df$Diabetes ~ ., data = df)
+Df_fit_bk = stepAIC(result_bk, direction = "backward", trace = T)
+
+# 단계적선택법
+Df_fit_st = stepAIC(result_bk, direction = "both", trace = T)
+
+# 전진선택법
+result_fw = lm(df$Diabetes ~ 1, data = df)
+Df_fit_fw = stepAIC(result_fw, direction = "forward", scope = (df$Diabetes ~ Pregnancies + SkinThickness + Insulin + Age + Outcome), trace = T)
