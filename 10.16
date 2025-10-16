@@ -1,3 +1,8 @@
+synthetic.csv 데이터를 활용해서 회귀분석을 진행하고, VIF 값이 7 초과인 변수와 이상치를 제거한 후 
+OLS와 GD의 각각의 R-Squared 값과 회귀계수 값을 도출하시오 (Learning rate 는 0.005)
+
+
+
 install.packages("MASS") # Boston 데이터셋, 변수선택법
 install.packages("car") # vif, durbinWatsonTest
 install.packages("skimr") # 데이터 요약
