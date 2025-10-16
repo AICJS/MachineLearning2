@@ -1,8 +1,8 @@
-install.packages("MASS")
-install.packages("car")
-install.packages("skimr")
-install.packages("rstatix")
-install.packages("caret")
+install.packages("MASS") # Boston 데이터셋, 변수선택법
+install.packages("car") # vif, durbinWatsonTest
+install.packages("skimr") # 데이터 요약
+install.packages("rstatix") # shapiro_test
+install.packages("caret") # 데이터 분할
 install.packages("BB")
 
 library(MASS)
@@ -68,17 +68,17 @@ coef(loaded)
 
 
 # 잔차
-opar <- par(no.readonly = TRUE)
-par(mfrow = c(2, 2))
-plot(result)
-par(opar)
+opar <- par(no.readonly = TRUE) # 그래프가 들어갈 window 생성
+par(mfrow = c(2, 2)) # 그래프가 들어갈 공간 생성 2X2
+plot(result) # 그래프 결과 도출
+par(opar) # 그래픽 매개변수 복원
 
-# 정규성
+# 정규성 : p > 0.05 보다 크면 귀무가설 채택(정규성이 있음)
 shapiro_test(result$residuals)
 
 
 
-# 다중공선성
+# 다중공선성(변수의 중복성) : 10 이상 GVIF^(1/(2*DF))
 vif_values <- vif(result)
 
 print(vif_values)
@@ -86,25 +86,28 @@ print(vif_values)
 selected_predictors <- names(vif_values[vif_values < 7])
 print(selected_predictors)
 
-# 이상치검정
+# 이상치검정 : cook's D 값이 높으면 문제(y 값이 3 ~ 4 보다 크면)
 influencePlot(result, id.method = "identify")
 
 # 이상치 제거
-df = df[-c(121),]
-df = df[-c(366, 369, 373, 381, 419),]
+df = df[-c(121),] # 하나의 값 제거
+df = df[-c(366, 369, 373, 381, 419),] # 여러 개의 값 제거
 
 
 
 df <- read.csv("C:/Users/PC502/Desktop/diabetes.csv", header = TRUE, na = ".")
 result <- lm(df$Diabetes ~ ., data = df)
 
+
+# AIC(Akaike Information Criterion) AIC 값이 줄어들면 그 변수는 의미가 있음
+
 # 후진소거법
 result_bk = lm(df$Diabetes ~ ., data = df)
-Df_fit_bk = stepAIC(result_bk, direction = "backward", trace = T)
+Df_fit_bk = stepAIC(result_bk, direction = "backward", trace = T) # trace 하나씩 빼는 과정을 보여줌
 
 # 단계적선택법
 Df_fit_st = stepAIC(result_bk, direction = "both", trace = T)
 
 # 전진선택법
 result_fw = lm(df$Diabetes ~ 1, data = df)
-Df_fit_fw = stepAIC(result_fw, direction = "forward", scope = (df$Diabetes ~ Pregnancies + SkinThickness + Insulin + Age + Outcome), trace = T)
+Df_fit_fw = stepAIC(result_fw, direction = "forward", scope = (df$Diabetes ~ Pregnancies + SkinThickness + Insulin + Age + Outcome), trace = T) # scope = (Backward 변수 카피)
