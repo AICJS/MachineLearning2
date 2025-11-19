@@ -1,0 +1,145 @@
+install.packages("rpart.plot")
+
+library(caret)
+library(rpart) # CART 모델
+library(rpart.plot)
+library(skimr)
+library(pROC)
+
+data(mtcars)
+skim(mtcars)
+
+mtcars[sapply(mtcars, is.character)] <- lapply(mtcars[sapply(mtcars, is.character)], as.factor)
+mtcars$am <- as.factor(mtcars$am)
+
+train_indices <- createDataPartition(mtcars$am, p = 0.8, list = FALSE)
+train_data <- mtcars[train_indices, ]
+test_data <- mtcars[-train_indices, ]
+
+
+
+# Hyper Parameters 설정
+control_params <- rpart.control(cp = 0.01, maxdepth = 5, minsplit = 10)
+# cp(분할될 때 마다 모델이 최소 1%는 되어야 함)
+# maxdepth(트리의 깊이가 최대값), mindepth(각각의 노드에 최소 10개의 관측치가 있도로 분할)
+
+# 모델 생성
+tree_model <- rpart(am ~ ., data = train_data, method = "class", control = control_params)
+
+# 모델 결과
+summary(tree_model)
+rpart.plot(tree_model)
+
+predicted_probs <- predict(tree_model, test_data, type = "prob")[,2]
+predicted_probs
+
+predicted_classes <- ifelse(predicted_probs > 0.5, 1, 0)
+predicted_classes <- as.factor(predicted_classes)
+predicted_classes
+
+
+
+# Confusion Matrix 도출
+confusion_matrix<- confusionMatrix(predicted_classes, test_data$am)
+print(confusion_matrix)
+
+# ROC Curve
+roc_curve <- roc(test_data$am, predicted_probs)
+plot(roc_curve)
+auc(roc_curve)
+
+
+
+df = read.csv("C:/Users/PC502/Desktop/customer.csv")
+
+# 1) 문자형 컬럼 공백 제거 후 factor로 변환
+char_cols <- sapply(df, is.character)
+df[char_cols] <- lapply(df[char_cols], function(x) {
+  x <- trimws(x) # 앞뒤 공백 제거
+  x[x == ""] <- NA # 완전 빈 문자열은 NA로 처리
+  factor(x)
+})
+
+# 2) factor 레벨을 make.names 로 안전하게 변환
+for (v in names(df)) {
+  if (is.factor(df[[v]])) {
+    lv <- levels(df[[v]])
+    lv[lv == ""] <- "missing"
+    lv <- make.names(lv)
+    levels(df[[v]]) <- lv
+  }
+}
+
+# 3) 컬럼 이름도 안전하게
+names(df) <- make.names(names(df), unique = TRUE)
+
+# 4) 타겟(종속변수)에 NA 있으면 제거
+df <- df[!is.na(df$Segmentation), ]
+df$Segmentation <- droplevels(df$Segmentation)
+
+# 5) 모델 및 예측
+install.packages("C50")
+library(C50) # C5.0 (C4.5 후속)
+library(caret)
+library(pROC)
+
+skim(df)
+
+df[sapply(df, is.character)] <- lapply(df[sapply(df, is.character)], as.factor)
+train_indices <- createDataPartition(df$Segmentation, p = 0.8, list = FALSE)
+train_data <- df[train_indices, ]
+test_data <- df[-train_indices, ]
+
+# C5.0 (C4.5 계열) 하이퍼파라미터 설정
+# - trials : boosting 횟수 (1이면 순수 트리 : C4.5 스타일)
+# - CF (confidence factor) : 가지치기 강도 (0 ~ 1, 작을수록 강한 가지치기, 기본 0.25)
+# - minCases : 리프 노드 최소 샘플 수
+ctrl_c50 <- C5.0Control(
+  CF = 0.25, # 비관적 오류 기반 가지치기 강도
+  minCases = 2,
+  winnow = FALSE # 변수 선택 사용 여부 (TRUE면 자동 변수선택)
+)
+
+# 모델 학습
+c50_model <- C5.0(Segmentation ~ ., data = train_data, control = ctrl_c50, trials = 1)
+
+# 모델 결과 확인
+summary(c50_model) # 규칙, 노드 수, 오류율, 사용된 변수 등 출력
+# plot(c50_model) # 트리 시각화(복잡하면 생성속도가 느림)
+
+# 예측 (확률 & 클래스)
+pred_prob <- predict(c50_model, newdata = test_data, type = "prob")
+pred_prob
+pred_class <- predict(c50_model, newdata = test_data, type = "class")
+pred_class <- as.factor(pred_class)
+pred_class
+
+# Confusion Matrix & 정확도
+conf_mat <- confusionMatrix(pred_class, test_data$Segmentation)
+print(conf_mat)
+# ROC Curve
+mc_roc <- multiclass.roc(response = test_data$Segmentation,
+                         predictor = pred_prob)
+mc_roc$auc # 다중클래스 전체 AUC 값
+
+# 6) 클래스별 ROC 커브
+classes <- levels(test_data$Segmentation)
+roc_list <- list()
+for (cl in classes) {
+  response_bin <- factor(test_data$Segmentation == cl,
+                         levels = c(FALSE, TRUE),
+                         labels = c("other", cl))
+  prob_cl <- pred_prob[, cl]
+  roc_list[[cl]] <- roc(response_bin, prob_cl, levels = c("other", cl))
+}
+plot(roc_list[[1]], col = 1, lwd = 2,
+     main = "One-vs-Rest ROC Curves (C5.0, 4-class)")
+if (length(classes) > 1) {
+  for (i in 2:length(classes)) {
+    plot(roc_list[[i]], col = i, lwd = 2, add = TRUE)
+  }
+}
+legend("bottomright",
+       legend = paste0(classes, " (AUC=", round(sapply(roc_list, auc), 3), ")"),
+       col = seq_along(classes),
+       lwd = 2, cex = 0.8)
