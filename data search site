@@ -3,4 +3,8 @@ https://archive.ics.uci.edu/datasets/
 https://www.kaggle.com/datasets?fileType=csv
 https://catalog.data.gov/dataset/
 
+11.20
 https://catalog.data.gov/dataset/warehouse-and-retail-sales
+종속변수 : 연속형 / 독립변수 : 연속형
+종속변수 : 범주형(2) / 독립변수 : 연속형
+종속변수 : 범주형(2~) / 독립변수 : 범주&연속형
