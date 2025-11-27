@@ -1,0 +1,38 @@
+✅ 조건 1 (종속변수: 연속형, 독립변수: 연속형) 예시
+
+Daily Transit Ridership
+
+이 데이터셋은 미국 여러 대중교통 시스템의 일일 탑승자 수를 CSV 형식으로 제공합니다. 
+https://catalog.data.gov/dataset/daily-transit-ridership?utm_source=chatgpt.com
+
+“일일 탑승자 수”(ridership)가 연속형 변수 역할을 할 수 있고, 분석자가 예를 들어 날짜, 요일, 시간, 시스템 종류, 날씨 등 다른 연속형/수치형 독립변수를 외부에서 결합해서 쓰면 회귀 분석 가능할 수 있어요.
+
+따라서 “종속 = 연속형, 독립 = 연속형(또는 수치)” 설정 조건을 만족할 가능성이 높은 데이터입니다.
+
+
+
+🔀 조건 2 (종속변수: 범주형(2가지) + 독립변수: 연속형) 예시
+
+U.S. Chronic Disease Indicators
+
+이 데이터셋은 여러 만성질환 지표(indicators)를 포함하며, CSV 형식으로 제공됩니다. 
+https://catalog.data.gov/dataset/u-s-chronic-disease-indicators?utm_source=chatgpt.com
+
+예를 들어 “특정 질환 유무 / 질환 발생 범주 (예: yes/no, high/low risk 등)” 같은 이진(binary) 범주형 변수가 있을 가능성이 있고, 인구통계학적 변수나 연령, 소득, 지역 변수 등 수치형 또는 연속형 독립변수를 함께 분석할 수 있습니다.
+
+따라서 ‘종속 = 두 가지 범주, 독립 = 연속형’ 분석 조건에 적합한 후보입니다.
+
+
+
+📊 조건 3 (종속변수: 범주형(2개 이상) + 독립변수: 범주 or 연속형) 예시
+
+Nutrition, Physical Activity, and Obesity - Behavioral Risk Factor Surveillance System (CSV)
+
+이 데이터셋은 최근(2025년 9월)까지 메타데이터가 업데이트된 데이터셋입니다. 
+https://catalog.data.gov/dataset/nutrition-physical-activity-and-obesity-behavioral-risk-factor-surveillance-system?utm_source=chatgpt.com
+
+이 설문/감시체계(Behavioral Risk Factor Surveillance System, BRFSS) 데이터에는 성인들의 영양, 신체활동, 체중상태(정상 / 과체중 / 비만 등) 등 여러 건강 관련 지표가 담겨 있을 가능성이 높습니다. 
+
+즉 종속변수로 “체중 상태 (예: 정상 / 과체중 / 비만)”처럼 2개 이상 범주를 가진 변수를 쓸 수 있고, 독립변수로는 나이, 성별, 신체활동량, 식습관 등 연속형 혹은 범주형 변수를 쓸 수 있을 가능성이 큽니다.
+
+따라서 이 데이터셋은 당신이 찾던 “종속 = 다범주 범주형 / 독립 = 연속 또는 범주형” 조건에 적합한 후보입니다.
