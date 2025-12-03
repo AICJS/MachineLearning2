@@ -1,0 +1,36 @@
+변수 선택도 회귀분석으로 나온 걸로 해야
+
+
+
+install.packages("rpart.plot")
+
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(skimr)
+library(pROC)
+
+
+
+sleep = read.csv("C:/Users/user/Desktop/student_sleep_patterns.csv")
+
+sleep[sapply(sleep, is.character)] <- lapply(sleep[sapply(sleep, is.character)], as.factor)
+sleep$Age <- as.factor(sleep$Age)
+
+train_indices <- createDataPartition(sleep$Age, p = 0.8, list = FALSE)
+train_data <- sleep[train_indices, ]
+test_data <- sleep[-train_indices, ]
+
+control_params <- rpart.control(cp = 0.01, maxdepth = 5, minsplit = 10)
+
+tree_model <- rpart(Age ~ ., data = train_data, method = "class", control = control_params)
+
+summary(tree_model)
+rpart.plot(tree_model)
+
+predicted_probs <- predict(tree_model, test_data, type = "prob")[,2]
+predicted_probs
+
+predicted_classes <- ifelse(predicted_probs > 0.5, 1, 0)
+predicted_classes <- as.factor(predicted_classes)
+predicted_classes
