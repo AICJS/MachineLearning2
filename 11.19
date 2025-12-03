@@ -40,7 +40,7 @@ predicted_classes
 
 
 # Confusion Matrix 도출
-confusion_matrix<- confusionMatrix(predicted_classes, test_data$am)
+confusion_matrix <- confusionMatrix(predicted_classes, test_data$am)
 print(confusion_matrix)
 
 # ROC Curve
